@@ -10,12 +10,25 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name="com.example.administrator.activity.MainActivity">
+
+        </activity>
+        <activity android:name="com.example.administrator.activity.CommonActivty">
+
+        </activity>
+        <activity android:name="com.example.administrator.activity.SetupActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.example.administrator.activity.ShowActivty">
+
+        </activity>
+        <service android:name="com.example.administrator.service.MyService"/>
+        <service android:name="com.example.administrator.service.M1Service"/>
+        <service android:name="com.example.administrator.service.IDCardService"/>
+        <service android:name="com.example.administrator.service.CommonService"/>
     </application>
 
 </manifest>

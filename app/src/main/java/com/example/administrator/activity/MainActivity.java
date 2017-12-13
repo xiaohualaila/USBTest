@@ -33,6 +33,8 @@ import java.util.Queue;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import butterknife.ButterKnife;
+
 
 public class MainActivity extends AppCompatActivity implements UltralightCardListener,M1CardListener {
     private SPUtils settingSp;
@@ -62,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements UltralightCardLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
         textView2 = (TextView)findViewById(R.id.textView2);
         Utils.init(getApplicationContext());
         settingSp = new SPUtils(getString(R.string.settingSp));
@@ -88,10 +91,9 @@ public class MainActivity extends AppCompatActivity implements UltralightCardLis
     }
 
     //UltralightCard打开设备
-    public void onOpen(View view){
-        deviceType = USB;
+    public void onOpen(){
         BasicOper.dc_AUSB_ReqPermission(this);
-        int portSate = BasicOper.dc_open(deviceType, MainActivity.this, "", 0);
+        int portSate = BasicOper.dc_open(USB, this, "", 0);
         if (portSate >= 0) {
             BasicOper.dc_beep(5);
             Log.d("sss", "portSate:" + portSate + "设备已连接");
