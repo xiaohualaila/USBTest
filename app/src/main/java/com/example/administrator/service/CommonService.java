@@ -27,6 +27,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class CommonService extends Service implements UltralightCardListener,M1CardListener {
     private int flag = 1;
+    private final int TIME = 500;
     //身份证
     private Thread thread;
     private boolean isAuto = true;
@@ -57,7 +58,7 @@ public class CommonService extends Service implements UltralightCardListener,M1C
         thread.start();
         //UltralightCard
         model = new UltralightCardModel(this);
-        //
+        //M1
         model2 = new M1CardModel(this);
     }
 
@@ -71,7 +72,7 @@ public class CommonService extends Service implements UltralightCardListener,M1C
                         if(uitralight){
                             model.bt_seek_card(ConstUtils.BT_SEEK_CARD);
                             Log.i("sss",">>>>>>>>>>>>>>>>>>>>>>UltralightCard");
-                            Thread.sleep(500);
+                            Thread.sleep(TIME);
                         }else {//M1
                             if (MDSEUtils.isSucceed(BasicOper.dc_card_hex(1))) {
                                 final int keyType = 0;// 0 : 4; 密钥套号 0(0套A密钥)  4(0套B密钥)
@@ -79,7 +80,7 @@ public class CommonService extends Service implements UltralightCardListener,M1C
                                 model2.bt_read_card(ConstUtils.BT_READ_CARD,keyType,0);
                             }
                             Log.i("sss",">>>>>>>>>>>>>>>>>>>>>>M1");
-                            Thread.sleep(500);
+                            Thread.sleep(TIME);
                         }
                         flag = 2;
                     }else if(flag == 2){//身份证
@@ -96,7 +97,7 @@ public class CommonService extends Service implements UltralightCardListener,M1C
                         if(idCardData!= null){
                             onDataListener.onIDCardMsg(idCardData);
                         }
-                        Thread.sleep(500);
+                        Thread.sleep(TIME);
                         flag = 1;
                     }
                 } catch (Exception e) {
@@ -110,8 +111,6 @@ public class CommonService extends Service implements UltralightCardListener,M1C
 
     @Override
     public void getUltralightCardResult(String cmd, String result) {
-        Log.i("sss","cmd++ "+cmd);
-        Log.i("sss","result++ "+result);
         if(!result.equals("1003|无卡或无法寻到卡片")){
             if(!result.equals("0001|操作失败")){
                 onDataListener.onUltralightCardMsg(result);
