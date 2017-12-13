@@ -216,6 +216,8 @@ public class CommonActivty extends AppCompatActivity  {
         }
     }
 
+    String str = "";
+    boolean kk = true;
     private class DispQueueThread extends Thread {
         private Queue<ComBean> QueueList = new LinkedList<ComBean>();
 
@@ -227,7 +229,13 @@ public class CommonActivty extends AppCompatActivity  {
                 while ((ComData = QueueList.poll()) != null) {
                     runOnUiThread(new Runnable() {
                         public void run() {
-                            DispRecData(ComData);
+                            if (kk) {
+                                str = new String(ComData.bRec);
+                                kk = false;
+                            } else {
+                                Log.i("xxx", str + new String(ComData.bRec) + "");
+                                kk = true;
+                            }
                         }
                     });
                     try {
@@ -238,21 +246,6 @@ public class CommonActivty extends AppCompatActivity  {
                     break;
                 }
             }
-        }
-
-        String str = "";
-        boolean kk = true;
-
-        private void DispRecData(ComBean ComRecData) {
-
-            if (kk) {
-                str = new String(ComRecData.bRec);
-                kk = false;
-            } else {
-                Log.i("xxx", str + new String(ComRecData.bRec) + "");
-                kk = true;
-            }
-
         }
 
 
