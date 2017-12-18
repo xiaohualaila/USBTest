@@ -4,10 +4,8 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
-import android.os.Message;
 import android.support.annotation.Nullable;
 import android.util.Log;
-
 import com.decard.NDKMethod.BasicOper;
 import com.example.administrator.usbtest.ConstUtils;
 import com.example.administrator.usbtest.M1CardListener;
@@ -16,7 +14,6 @@ import com.example.administrator.usbtest.MDSEUtils;
 import com.example.administrator.usbtest.SectorDataBean;
 import com.example.administrator.usbtest.UltralightCardListener;
 import com.example.administrator.usbtest.UltralightCardModel;
-
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;

@@ -16,20 +16,15 @@ import com.decard.entitys.IDCard;
 import com.example.administrator.service.IDCardService;
 import com.example.administrator.service.M1Service;
 import com.example.administrator.service.MyService;
-import com.example.administrator.usbtest.M1CardModel;
 import com.example.administrator.usbtest.R;
 import com.example.administrator.usbtest.SPUtils;
-import com.example.administrator.usbtest.UltralightCardListener;
-import com.example.administrator.usbtest.UltralightCardModel;
 import com.example.administrator.usbtest.Utils;
-import com.example.administrator.util.SharedPreferencesUtil;
-
 import butterknife.ButterKnife;
 
-/**
- * Created by Administrator on 2017/12/12.
- */
 
+/**
+ * 该页面吧调通的外挂设备单独开启
+ */
 public class ShowActivty extends AppCompatActivity  {
     private SPUtils settingSp;
     private String USB="";

@@ -8,28 +8,21 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
-
 import com.cmm.rkadcreader.adcNative;
 import com.cmm.rkgpiocontrol.rkGpioControlNative;
 import com.decard.NDKMethod.BasicOper;
 import com.decard.entitys.IDCard;
 import com.example.administrator.service.CommonService;
-import com.example.administrator.service.IDCardService;
-import com.example.administrator.service.M1Service;
-import com.example.administrator.service.MyService;
 import com.example.administrator.usbtest.ComBean;
 import com.example.administrator.usbtest.R;
 import com.example.administrator.usbtest.SPUtils;
 import com.example.administrator.usbtest.SerialHelper;
 import com.example.administrator.usbtest.Utils;
-
 import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.LinkedList;
 import java.util.Queue;
-
 import butterknife.ButterKnife;
 
 /**
@@ -47,7 +40,6 @@ public class CommonActivty extends AppCompatActivity  {
     private boolean uitralight = true;
     private boolean scan = true;
     private boolean idcard = true;
-
 
     //串口
     SerialControl ComA;
@@ -101,8 +93,6 @@ public class CommonActivty extends AppCompatActivity  {
             });
         }
     };
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -187,9 +177,9 @@ public class CommonActivty extends AppCompatActivity  {
         } catch (SecurityException e) {
                 Log.i("xxx","SecurityException" + e.toString());
         } catch (IOException e) {
-               Log.i("xxx","IOException" + e.toString());
+                Log.i("xxx","IOException" + e.toString());
         } catch (InvalidParameterException e) {
-                 Log.i("xxx","InvalidParameterException" + e.toString());
+                Log.i("xxx","InvalidParameterException" + e.toString());
         }
     }
 

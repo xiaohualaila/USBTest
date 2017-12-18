@@ -28,4 +28,16 @@ dependencies {
     implementation files('libs/dc_mate_2017_08_29_16_50.jar')
     compile 'com.jakewharton:butterknife:8.5.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
+//网络请求框架
+    compile 'com.squareup.retrofit2:retrofit:2.1.0'
+    compile 'org.ligboy.retrofit2:converter-fastjson-android:2.1.0'
+    compile 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
+    compile 'com.squareup.okhttp3:logging-interceptor:3.1.2'
+    compile 'com.squareup.okhttp3:okhttp:3.1.2'
+    compile 'io.reactivex:rxjava:1.1.0'
+    compile 'io.reactivex:rxandroid:1.1.0'
+    compile 'com.trello:rxlifecycle:0.6.1'
+    compile 'com.trello:rxlifecycle-components:0.6.1'
+    compile 'com.jakewharton.rxbinding:rxbinding:1.0.1'
+    compile 'com.github.bumptech.glide:glide:3.5.2'
 }
