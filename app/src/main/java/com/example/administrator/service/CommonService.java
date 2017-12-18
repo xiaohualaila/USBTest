@@ -38,7 +38,6 @@ public class CommonService extends Service implements UltralightCardListener,M1C
     private boolean isHaveOne = false;
 
     private boolean uitralight = true;
-    private boolean scan = true;
     private boolean idcard = true;
 
     private OnDataListener onDataListener;
@@ -81,20 +80,22 @@ public class CommonService extends Service implements UltralightCardListener,M1C
                         }
                         flag = 2;
                     }else if(flag == 2){//身份证
-                        Log.i("sss",">>>>>>>>>>>>>>>>>>>>>>身份证");
-                        com.decard.entitys.IDCard idCardData;
-                        if (!choose) {
-                            //标准协议
-                            idCardData = BasicOper.dc_get_i_d_raw_info();
+                        if(idcard){
+                            Log.i("sss",">>>>>>>>>>>>>>>>>>>>>>身份证");
+                            com.decard.entitys.IDCard idCardData;
+                            if (!choose) {
+                                //标准协议
+                                idCardData = BasicOper.dc_get_i_d_raw_info();
 
-                        } else {
-                            //公安部协议
-                            idCardData = BasicOper.dc_SamAReadCardInfo(1);
+                            } else {
+                                //公安部协议
+                                idCardData = BasicOper.dc_SamAReadCardInfo(1);
+                            }
+                            if(idCardData!= null){
+                                onDataListener.onIDCardMsg(idCardData);
+                            }
+                            Thread.sleep(TIME);
                         }
-                        if(idCardData!= null){
-                            onDataListener.onIDCardMsg(idCardData);
-                        }
-                        Thread.sleep(TIME);
                         flag = 1;
                     }
                 } catch (Exception e) {
@@ -154,9 +155,8 @@ public class CommonService extends Service implements UltralightCardListener,M1C
             return CommonService.this;
         }
 
-        public void setIntentData(boolean uitralight, boolean scan, boolean idcard) {
+        public void setIntentData(boolean uitralight, boolean idcard) {
             CommonService.this.uitralight = uitralight;
-            CommonService.this.scan = scan;
             CommonService.this.idcard = idcard;
         }
 

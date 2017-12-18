@@ -63,6 +63,7 @@
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@+id/read_idcard_text"
                 android:layout_centerVertical="true"
+                android:checked="true"
                 android:layout_marginLeft="20dp"/>
 
         </RelativeLayout>
@@ -84,6 +85,7 @@
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@+id/scan_text"
                 android:layout_centerVertical="true"
+                android:checked="true"
                 android:layout_marginLeft="20dp"/>
         </RelativeLayout>
     </LinearLayout>

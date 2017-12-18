@@ -8,6 +8,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.cmm.rkadcreader.adcNative;
 import com.cmm.rkgpiocontrol.rkGpioControlNative;
@@ -15,6 +17,7 @@ import com.decard.NDKMethod.BasicOper;
 import com.decard.entitys.IDCard;
 import com.example.administrator.service.CommonService;
 import com.example.administrator.usbtest.ComBean;
+import com.example.administrator.usbtest.ConvertUtils;
 import com.example.administrator.usbtest.R;
 import com.example.administrator.usbtest.SPUtils;
 import com.example.administrator.usbtest.SerialHelper;
@@ -23,6 +26,8 @@ import java.io.IOException;
 import java.security.InvalidParameterException;
 import java.util.LinkedList;
 import java.util.Queue;
+
+import butterknife.BindView;
 import butterknife.ButterKnife;
 
 /**
@@ -30,6 +35,25 @@ import butterknife.ButterKnife;
  */
 
 public class CommonActivty extends AppCompatActivity  {
+    @BindView(R.id.name_tv)
+    TextView name_tv;
+    @BindView(R.id.sex_tv)
+    TextView sex_tv;
+    @BindView(R.id.native_tv)
+    TextView native_tv;
+    @BindView(R.id.age_tv)
+    TextView age_tv;
+    @BindView(R.id.address_tv)
+    TextView address_tv;
+    @BindView(R.id.idcard_num_tv)
+    TextView idcard_num_tv;
+
+    @BindView(R.id.code_type)
+    TextView code_type;
+    @BindView(R.id.code_tv)
+    TextView code_tv;
+    @BindView(R.id.ivPhoto)
+    ImageView ivPhoto;
     private SPUtils settingSp;
     private String USB="";
     private boolean isOpenDoor = false;
@@ -46,6 +70,7 @@ public class CommonActivty extends AppCompatActivity  {
     DispQueueThread DispQueue;
 
 
+
     private ServiceConnection connection = new ServiceConnection() {
 
         @Override
@@ -56,12 +81,27 @@ public class CommonActivty extends AppCompatActivity  {
         public void onServiceConnected(ComponentName name, IBinder service) {
             myBinder = (CommonService.MyBinder) service;
             myService = myBinder.getService();
-            myBinder.setIntentData(uitralight,scan,idcard);
+            myBinder.setIntentData(uitralight,idcard);
             myService.setOnProgressListener(new CommonService.OnDataListener() {
                 @Override
-                public void onIDCardMsg(IDCard idCardData) {//身份证
+                public void onIDCardMsg(final IDCard idCardData) {//身份证
                     if (idCardData != null) {
                         BasicOper.dc_beep(5);
+                       runOnUiThread(new Runnable() {
+                           @Override
+                           public void run() {
+                               name_tv.setText(idCardData.getName().trim());
+                               sex_tv.setText(idCardData.getSex().trim());
+                               native_tv.setText(idCardData.getNation().trim());
+                               age_tv.setText(idCardData.getBirthday().trim());
+                               address_tv.setText(idCardData.getAddress().trim());
+                               idcard_num_tv.setText(idCardData.getId().trim());
+                               ivPhoto.setImageBitmap(ConvertUtils.bytes2Bitmap(ConvertUtils.hexString2Bytes(idCardData.getPhotoDataHexStr())));
+                           }
+                       });
+
+                        openDoor();
+
                         Log.i("sss", idCardData.getName());
                         Log.i("sss", idCardData.getSex());
                         Log.i("sss", idCardData.getNation());
@@ -70,29 +110,46 @@ public class CommonActivty extends AppCompatActivity  {
                         Log.i("sss", idCardData.getId());
                         Log.i("sss", idCardData.getOffice());
                         Log.i("sss", idCardData.getEndTime());
-                        Log.i("sss", idCardData.getName());
+
                     }
                 }
 
                 @Override
-                public void onUltralightCardMsg(String result) {
+                public void onUltralightCardMsg(final String result) {
                     BasicOper.dc_beep(5);
-                    Log.i("sss",result + ">>>>>>>>>>>>>>>>");
-                    if(!isOpenDoor){
-                        isOpenDoor = true;
-                        rkGpioControlNative.ControlGpio(1, 0);//开门
-                        handler.postDelayed(runnable,500);
-                    }
+                    openDoor();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            code_type.setText("Ultralight卡");
+                            code_tv.setText(result);
+                        }
+                    });
                 }
 
                 @Override
-                public void onM1CardMsg(String code) {
+                public void onM1CardMsg(final String code) {
                     BasicOper.dc_beep(5);
-                    Log.i("sss",code + ">>>>>>>>>>>>>>>>");
+                    openDoor();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            code_type.setText("M1卡");
+                            code_tv.setText(code);
+                        }
+                    });
                 }
             });
         }
     };
+
+     public void openDoor(){
+         if(!isOpenDoor){
+             isOpenDoor = true;
+             rkGpioControlNative.ControlGpio(1, 0);//开门
+             handler.postDelayed(runnable,500);
+         }
+     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,8 +158,8 @@ public class CommonActivty extends AppCompatActivity  {
         ButterKnife.bind(this);
         Intent intent = getIntent();
         uitralight = intent.getBooleanExtra("uitralight",true);
-        scan = intent.getBooleanExtra("scan",false);
-        idcard = intent.getBooleanExtra("idcard",false);
+        scan = intent.getBooleanExtra("scan",true);
+        idcard = intent.getBooleanExtra("idcard",true);
 
         Utils.init(getApplicationContext());
         settingSp = new SPUtils(getString(R.string.settingSp));
@@ -113,7 +170,10 @@ public class CommonActivty extends AppCompatActivity  {
         ComA = new SerialControl();
         DispQueue = new DispQueueThread();
         DispQueue.start();
-        openErWeiMa();
+        if(scan){
+            openErWeiMa();
+        }
+
     }
 
     Runnable runnable = new Runnable() {
@@ -160,7 +220,9 @@ public class CommonActivty extends AppCompatActivity  {
         adcNative.close(0);
         adcNative.close(2);
         rkGpioControlNative.close();
-        closeErWeiMa();
+        if(scan){
+            closeErWeiMa();
+        }
     }
 
     //打开串口
@@ -223,7 +285,12 @@ public class CommonActivty extends AppCompatActivity  {
                                 str = new String(ComData.bRec);
                                 kk = false;
                             } else {
-                                Log.i("xxx", str + new String(ComData.bRec) + "");
+                                BasicOper.dc_beep(5);
+                                openDoor();
+                                String scan_code = str + new String(ComData.bRec);
+                                Log.i("sss",scan_code);
+                                code_type.setText("二维码");
+                                code_tv.setText(scan_code);
                                 kk = true;
                             }
                         }

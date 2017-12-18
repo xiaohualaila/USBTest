@@ -116,7 +116,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         public void onServiceConnected(ComponentName name, IBinder service) {
             myBinder = (CommonService.MyBinder) service;
             myService = myBinder.getService();
-            myBinder.setIntentData(uitralight,scan,idcard);
+            myBinder.setIntentData(uitralight,idcard);
             myService.setOnProgressListener(new CommonService.OnDataListener() {
                 @Override
                 public void onIDCardMsg(IDCard idCardData) {//身份证

@@ -22,8 +22,8 @@ public class SetupActivity  extends AppCompatActivity implements CompoundButton.
     @BindView(R.id.scan_switch)
     Switch scan_switch;
     private boolean isUitralight = true;
-    private boolean isScan = false;
-    private boolean isIdcard = false;
+    private boolean isScan = true;
+    private boolean isIdcard = true;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
