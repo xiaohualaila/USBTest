@@ -17,7 +17,7 @@ import com.example.administrator.usbtest.ConstUtils;
 import com.example.administrator.usbtest.M1CardListener;
 import com.example.administrator.usbtest.M1CardModel;
 import com.example.administrator.usbtest.MDSEUtils;
-import com.example.administrator.R;
+import com.example.administrator.usbtest.R;
 import com.example.administrator.usbtest.SPUtils;
 import com.example.administrator.usbtest.SectorDataBean;
 import com.example.administrator.usbtest.SerialHelper;

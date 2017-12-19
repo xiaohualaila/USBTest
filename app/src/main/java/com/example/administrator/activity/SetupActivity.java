@@ -6,7 +6,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
-import com.example.administrator.R;
+
+import com.example.administrator.service.LifecycleService;
+import com.example.administrator.usbtest.R;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -46,7 +48,8 @@ public class SetupActivity  extends AppCompatActivity implements CompoundButton.
                 isUitralight = false;
                 break;
             case R.id.finish:
-                Intent intent = new Intent(this,CommonActivty.class);
+              //  Intent intent = new Intent(this,CommonActivty.class);
+                Intent intent = new Intent(this,LifecycleActivity.class);
                 intent.putExtra("uitralight",isUitralight);
                 intent.putExtra("scan",isScan);
                 intent.putExtra("idcard",isIdcard);

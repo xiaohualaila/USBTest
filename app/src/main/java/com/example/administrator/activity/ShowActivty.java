@@ -16,7 +16,7 @@ import com.decard.entitys.IDCard;
 import com.example.administrator.service.IDCardService;
 import com.example.administrator.service.M1Service;
 import com.example.administrator.service.MyService;
-import com.example.administrator.R;
+import com.example.administrator.usbtest.R;
 import com.example.administrator.usbtest.SPUtils;
 import com.example.administrator.usbtest.Utils;
 import butterknife.ButterKnife;

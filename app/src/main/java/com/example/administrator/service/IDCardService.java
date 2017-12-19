@@ -1,18 +1,11 @@
 package com.example.administrator.service;
 
-import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.support.annotation.Nullable;
-import android.util.Log;
-
 import com.decard.NDKMethod.BasicOper;
-import com.example.administrator.activity.MainActivity;
-
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 

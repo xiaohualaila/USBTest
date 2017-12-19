@@ -1,52 +1,58 @@
 package com.example.administrator.activity;
 
-import android.content.ComponentName;
-import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
-import com.cmm.rkadcreader.adcNative;
-import com.cmm.rkgpiocontrol.rkGpioControlNative;
-import com.decard.NDKMethod.BasicOper;
-import com.decard.entitys.IDCard;
-import com.example.administrator.retrofit.Api;
-import com.example.administrator.retrofit.ConnectUrl;
-import com.example.administrator.service.CommonService;
-import com.example.administrator.usbtest.ComBean;
-import com.example.administrator.usbtest.ConvertUtils;
-import com.example.administrator.usbtest.R;
-import com.example.administrator.usbtest.SPUtils;
-import com.example.administrator.usbtest.SerialHelper;
-import com.example.administrator.usbtest.Utils;
+        import android.content.ComponentName;
+        import android.content.Intent;
+        import android.content.ServiceConnection;
+        import android.os.Bundle;
+        import android.os.Handler;
+        import android.os.IBinder;
+        import android.support.v7.app.AppCompatActivity;
+        import android.util.Log;
+        import android.widget.ImageView;
+        import android.widget.TextView;
+        import android.widget.Toast;
+        import com.cmm.rkadcreader.adcNative;
+        import com.cmm.rkgpiocontrol.rkGpioControlNative;
+        import com.decard.NDKMethod.BasicOper;
+        import com.decard.entitys.IDCard;
+        import com.example.administrator.retrofit.Api;
+        import com.example.administrator.retrofit.ConnectUrl;
+        import com.example.administrator.service.CommonService;
+        import com.example.administrator.service.LifecycleService;
+        import com.example.administrator.usbtest.ComBean;
+        import com.example.administrator.usbtest.ConstUtils;
+        import com.example.administrator.usbtest.ConvertUtils;
+        import com.example.administrator.usbtest.MDSEUtils;
+        import com.example.administrator.usbtest.R;
+        import com.example.administrator.usbtest.SPUtils;
+        import com.example.administrator.usbtest.SerialHelper;
+        import com.example.administrator.usbtest.Utils;
 
-import org.json.JSONObject;
+        import org.json.JSONObject;
 
-import java.io.File;
-import java.io.IOException;
-import java.security.InvalidParameterException;
-import java.util.LinkedList;
-import java.util.Queue;
+        import java.io.File;
+        import java.io.IOException;
+        import java.security.InvalidParameterException;
+        import java.util.LinkedList;
+        import java.util.Queue;
+        import java.util.concurrent.TimeUnit;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import okhttp3.MediaType;
-import okhttp3.MultipartBody;
-import okhttp3.RequestBody;
-import rx.Observer;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
+        import butterknife.BindView;
+        import butterknife.ButterKnife;
+        import okhttp3.MediaType;
+        import okhttp3.MultipartBody;
+        import okhttp3.RequestBody;
+        import rx.Observable;
+        import rx.Observer;
+        import rx.android.schedulers.AndroidSchedulers;
+        import rx.functions.Action1;
+        import rx.schedulers.Schedulers;
 
 /**
  * Created by Administrator on 2017/12/12.
  */
 
-public class CommonActivty extends AppCompatActivity  {
+public class LifecycleActivity extends AppCompatActivity  {
     @BindView(R.id.name_tv)
     TextView name_tv;
     @BindView(R.id.sex_tv)
@@ -69,8 +75,8 @@ public class CommonActivty extends AppCompatActivity  {
     private SPUtils settingSp;
     private String USB="";
     private boolean isOpenDoor = false;
-    private CommonService myService;
-    private CommonService.MyBinder myBinder;
+    private LifecycleService myService;
+    private LifecycleService.MyBinder myBinder;
     private Handler handler = new Handler();
 
     private boolean uitralight = true;
@@ -92,16 +98,16 @@ public class CommonActivty extends AppCompatActivity  {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            myBinder = (CommonService.MyBinder) service;
+            myBinder = (LifecycleService.MyBinder) service;
             myService = myBinder.getService();
             myBinder.setIntentData(uitralight,idcard);
-            myService.setOnProgressListener(new CommonService.OnDataListener() {
+            myService.setOnProgressListener(new LifecycleService.OnDataListener() {
                 @Override
                 public void onIDCardMsg(final IDCard idCardData) {//身份证
                     if(!isReading) {
                         isReading = true;
                         if (idCardData != null) {
-                           // BasicOper.dc_beep(5);
+                            BasicOper.dc_beep(5);
                             openDoor();
                             runOnUiThread(new Runnable() {
                                 @Override
@@ -124,7 +130,7 @@ public class CommonActivty extends AppCompatActivity  {
                 public void onUltralightCardMsg(final String result) {
                     if(!isReading){
                         isReading = true;
-                       // BasicOper.dc_beep(5);
+                         BasicOper.dc_beep(5);
                         openDoor();
                         runOnUiThread(new Runnable() {
                             @Override
@@ -140,7 +146,7 @@ public class CommonActivty extends AppCompatActivity  {
                 @Override
                 public void onM1CardMsg(final String code) {
                     if(!isReading) {
-                      //  BasicOper.dc_beep(5);
+                        BasicOper.dc_beep(5);
                         openDoor();
                         runOnUiThread(new Runnable() {
                             @Override
@@ -157,17 +163,17 @@ public class CommonActivty extends AppCompatActivity  {
     };
 
 
-   private void  upload(){
-       isReading = false;
-   }
+    private void  upload(){
+        isReading = false;
+    }
 
-     public void openDoor(){
-         if(!isOpenDoor){
-             isOpenDoor = true;
-             rkGpioControlNative.ControlGpio(1, 0);//开门
-             handler.postDelayed(runnable,500);
-         }
-     }
+    public void openDoor(){
+        if(!isOpenDoor){
+            isOpenDoor = true;
+            rkGpioControlNative.ControlGpio(1, 0);//开门
+            handler.postDelayed(runnable,500);
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -211,8 +217,8 @@ public class CommonActivty extends AppCompatActivity  {
         if (portSate >= 0) {
             BasicOper.dc_beep(5);
             Log.d("sss", "portSate:" + portSate + "设备已连接");
-                Intent bindIntent1 = new Intent(this, CommonService.class);
-                bindService(bindIntent1, connection, BIND_AUTO_CREATE);
+            Intent bindIntent1 = new Intent(this, LifecycleService.class);
+            bindService(bindIntent1, connection, BIND_AUTO_CREATE);
 
         }else {
             Toast.makeText(this,"设备没有连接上！",Toast.LENGTH_LONG).show();
@@ -233,7 +239,7 @@ public class CommonActivty extends AppCompatActivity  {
     protected void onDestroy() {
         super.onDestroy();
         myBinder.stopThread();
-         unbindService(connection);
+        unbindService(connection);
         onDisConnectPort();
         adcNative.close(0);
         adcNative.close(2);
@@ -255,11 +261,11 @@ public class CommonActivty extends AppCompatActivity  {
         {
             ComPort.open();
         } catch (SecurityException e) {
-                Log.i("xxx","SecurityException" + e.toString());
+            Log.i("xxx","SecurityException" + e.toString());
         } catch (IOException e) {
-                Log.i("xxx","IOException" + e.toString());
+            Log.i("xxx","IOException" + e.toString());
         } catch (InvalidParameterException e) {
-                Log.i("xxx","InvalidParameterException" + e.toString());
+            Log.i("xxx","InvalidParameterException" + e.toString());
         }
     }
 
@@ -325,6 +331,7 @@ public class CommonActivty extends AppCompatActivity  {
         public synchronized void AddQueue(ComBean ComData) {
             QueueList.add(ComData);
         }
+
     }
 
     /**
@@ -403,3 +410,4 @@ public class CommonActivty extends AppCompatActivity  {
                 });
     }
 }
+

@@ -6,6 +6,8 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.View;
+
 import com.decard.NDKMethod.BasicOper;
 import com.example.administrator.usbtest.ConstUtils;
 import com.example.administrator.usbtest.M1CardListener;
@@ -14,22 +16,26 @@ import com.example.administrator.usbtest.MDSEUtils;
 import com.example.administrator.usbtest.SectorDataBean;
 import com.example.administrator.usbtest.UltralightCardListener;
 import com.example.administrator.usbtest.UltralightCardModel;
+
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import rx.Observable;
+import rx.Subscription;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 /**
  * Created by Administrator on 2017/12/13.
  */
 
-public class CommonService extends Service implements UltralightCardListener,M1CardListener {
+public class LifecycleService extends Service implements UltralightCardListener,M1CardListener {
     private int flag = 1;
-    private final int TIME = 500;
     //身份证
-    private Thread thread;
-    private boolean isAuto = true;
     private boolean choose = false;//false标准协议,true公安部协议
-    private static Lock lock = new ReentrantLock();
     //UltralightCard读卡
     private UltralightCardModel model;
 
@@ -39,7 +45,7 @@ public class CommonService extends Service implements UltralightCardListener,M1C
 
     private boolean uitralight = true;
     private boolean idcard = true;
-
+    private Subscription sub;
     private OnDataListener onDataListener;
 
     public void setOnProgressListener(OnDataListener onProgressListener) {
@@ -49,63 +55,57 @@ public class CommonService extends Service implements UltralightCardListener,M1C
     @Override
     public void onCreate() {
         super.onCreate();
-        //身份证
-        thread = new Thread(task);
-        thread.start();
+
         //UltralightCard
         model = new UltralightCardModel(this);
         //M1
         model2 = new M1CardModel(this);
+
+        todoLifecycle();
     }
 
-     Runnable task = new Runnable() {
-        @Override
-        public void run() {
-            while (isAuto) {
-                lock.lock();
-                try {
-                    if(flag == 1){//UltralightCard
-                        if(uitralight){
-                            model.bt_seek_card(ConstUtils.BT_SEEK_CARD);
-                            Log.i("sss",">>>>>>>>>>>>>>>>>>>>>>UltralightCard");
-                            Thread.sleep(TIME);
-                        }else {//M1
-                            if (MDSEUtils.isSucceed(BasicOper.dc_card_hex(1))) {
-                                final int keyType = 0;// 0 : 4; 密钥套号 0(0套A密钥)  4(0套B密钥)
-                                isHaveOne = true;
-                                model2.bt_read_card(ConstUtils.BT_READ_CARD,keyType,0);
+    public void todoLifecycle(){
+         sub = Observable.interval(2000, 800, TimeUnit.MILLISECONDS)
+                .observeOn(Schedulers.io())
+                .subscribe(new Action1<Long>() {
+                    @Override
+                    public void call(Long aLong) {
+                        if(flag == 1){//UltralightCard
+                            if(uitralight){
+                                model.bt_seek_card(ConstUtils.BT_SEEK_CARD);
+                                Log.i("sss",">>>>>>>>>>>>>>>>>>>>>>UltralightCard");
+                            }else {//M1
+                                if (MDSEUtils.isSucceed(BasicOper.dc_card_hex(1))) {
+                                    final int keyType = 0;// 0 : 4; 密钥套号 0(0套A密钥)  4(0套B密钥)
+                                    isHaveOne = true;
+                                    model2.bt_read_card(ConstUtils.BT_READ_CARD,keyType,0);
+                                }
+                                Log.i("sss",">>>>>>>>>>>>>>>>>>>>>>M1");
                             }
-                            Log.i("sss",">>>>>>>>>>>>>>>>>>>>>>M1");
-                            Thread.sleep(TIME);
-                        }
-                        flag = 2;
-                    }else if(flag == 2){//身份证
-                        if(idcard){
-                            Log.i("sss",">>>>>>>>>>>>>>>>>>>>>>身份证");
-                            com.decard.entitys.IDCard idCardData;
-                            if (!choose) {
-                                //标准协议
-                                idCardData = BasicOper.dc_get_i_d_raw_info();
+                            flag = 2;
+                        }else if(flag == 2){//身份证
+                            if(idcard){
+                                Log.i("sss",">>>>>>>>>>>>>>>>>>>>>>身份证");
+                                com.decard.entitys.IDCard idCardData;
+                                if (!choose) {
+                                    //标准协议
+                                    idCardData = BasicOper.dc_get_i_d_raw_info();
 
-                            } else {
-                                //公安部协议
-                                idCardData = BasicOper.dc_SamAReadCardInfo(1);
+                                } else {
+                                    //公安部协议
+                                    idCardData = BasicOper.dc_SamAReadCardInfo(1);
+                                }
+                                if(idCardData!= null){
+                                    onDataListener.onIDCardMsg(idCardData);
+                                }
                             }
-                            if(idCardData!= null){
-                                onDataListener.onIDCardMsg(idCardData);
-                            }
-                            Thread.sleep(1000);
+                            flag = 1;
                         }
-                        flag = 1;
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    lock.unlock();
-                }
-            }
-        }
-    };
+                });
+    }
+
+
 
     @Override
     public void getUltralightCardResult(String cmd, String result) {
@@ -153,17 +153,17 @@ public class CommonService extends Service implements UltralightCardListener,M1C
 
 
     public class MyBinder extends Binder {
-        public CommonService getService(){
-            return CommonService.this;
+        public LifecycleService getService(){
+            return LifecycleService.this;
         }
 
         public void setIntentData(boolean uitralight, boolean idcard) {
-            CommonService.this.uitralight = uitralight;
-            CommonService.this.idcard = idcard;
+            LifecycleService.this.uitralight = uitralight;
+            LifecycleService.this.idcard = idcard;
         }
 
         public void stopThread() {
-            thread.interrupt();
+            sub.unsubscribe();
         }
     }
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.administrator"
+    package="com.example.administrator.usbtest"
     android:installLocation="internalOnly">
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-feature android:name="android.hardware.usb.host" />
@@ -11,27 +11,31 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activity.MainActivity">
+        <activity android:name="com.example.administrator.activity.MainActivity">
 
         </activity>
-        <activity android:name=".activity.CommonActivty">
+        <activity android:name="com.example.administrator.activity.CommonActivty">
 
         </activity>
-        <activity android:name=".activity.SetupActivity">
+        <activity android:name="com.example.administrator.activity.SetupActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.ShowActivty">
+        <activity android:name="com.example.administrator.activity.ShowActivty">
 
         </activity>
-        <service android:name=".service.MyService"/>
-        <service android:name=".service.M1Service"/>
-        <service android:name=".service.IDCardService"/>
-        <service android:name=".service.CommonService"/>
-        <receiver android:name=".broadcastReceiver.BootBroadcastReceiver"
+        <activity android:name="com.example.administrator.activity.LifecycleActivity">
+
+        </activity>
+        <service android:name="com.example.administrator.service.MyService"/>
+        <service android:name="com.example.administrator.service.M1Service"/>
+        <service android:name="com.example.administrator.service.IDCardService"/>
+        <service android:name="com.example.administrator.service.CommonService"/>
+        <service android:name="com.example.administrator.service.LifecycleService"/>
+        <receiver android:name="com.example.administrator.broadcastReceiver.BootBroadcastReceiver"
             android:enabled="true"
             android:exported="true"
             android:permission="android.permission.RECEIVE_BOOT_COMPLETED">
