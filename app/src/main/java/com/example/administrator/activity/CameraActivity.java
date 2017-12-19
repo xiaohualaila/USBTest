@@ -28,11 +28,12 @@ import com.cmm.rkadcreader.adcNative;
 import com.cmm.rkgpiocontrol.rkGpioControlNative;
 import com.decard.NDKMethod.BasicOper;
 import com.decard.entitys.IDCard;
+import com.example.administrator.R;
 import com.example.administrator.retrofit.Api;
 import com.example.administrator.retrofit.ConnectUrl;
 import com.example.administrator.service.CommonService;
 import com.example.administrator.usbtest.ComBean;
-import com.example.administrator.usbtest.R;
+
 import com.example.administrator.usbtest.SPUtils;
 import com.example.administrator.usbtest.SerialHelper;
 import com.example.administrator.usbtest.Utils;

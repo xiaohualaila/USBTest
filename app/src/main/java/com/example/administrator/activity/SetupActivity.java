@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.Switch;
-import com.example.administrator.usbtest.R;
+import com.example.administrator.R;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;

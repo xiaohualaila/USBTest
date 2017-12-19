@@ -18,7 +18,7 @@ import com.decard.entitys.IDCard;
 import com.example.administrator.service.CommonService;
 import com.example.administrator.usbtest.ComBean;
 import com.example.administrator.usbtest.ConvertUtils;
-import com.example.administrator.usbtest.R;
+import com.example.administrator.R;
 import com.example.administrator.usbtest.SPUtils;
 import com.example.administrator.usbtest.SerialHelper;
 import com.example.administrator.usbtest.Utils;
