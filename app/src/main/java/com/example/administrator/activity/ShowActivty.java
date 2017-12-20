@@ -23,7 +23,7 @@ import butterknife.ButterKnife;
 
 
 /**
- * 该页面吧调通的外挂设备单独开启
+ * 该页面调外挂设备单独开启
  */
 public class ShowActivty extends AppCompatActivity  {
     private SPUtils settingSp;

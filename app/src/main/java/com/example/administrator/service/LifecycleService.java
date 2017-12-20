@@ -6,8 +6,6 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
-import android.view.View;
-
 import com.decard.NDKMethod.BasicOper;
 import com.example.administrator.usbtest.ConstUtils;
 import com.example.administrator.usbtest.M1CardListener;
@@ -16,15 +14,10 @@ import com.example.administrator.usbtest.MDSEUtils;
 import com.example.administrator.usbtest.SectorDataBean;
 import com.example.administrator.usbtest.UltralightCardListener;
 import com.example.administrator.usbtest.UltralightCardModel;
-
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 import rx.Observable;
 import rx.Subscription;
-import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
@@ -73,19 +66,19 @@ public class LifecycleService extends Service implements UltralightCardListener,
                         if(flag == 1){//UltralightCard
                             if(uitralight){
                                 model.bt_seek_card(ConstUtils.BT_SEEK_CARD);
-                                Log.i("sss",">>>>>>>>>>>>>>>>>>>>>>UltralightCard");
+                             //   Log.i("sss",">>>>>>>>>>>>>>>>>>>>>>UltralightCard");
                             }else {//M1
                                 if (MDSEUtils.isSucceed(BasicOper.dc_card_hex(1))) {
                                     final int keyType = 0;// 0 : 4; 密钥套号 0(0套A密钥)  4(0套B密钥)
                                     isHaveOne = true;
                                     model2.bt_read_card(ConstUtils.BT_READ_CARD,keyType,0);
                                 }
-                                Log.i("sss",">>>>>>>>>>>>>>>>>>>>>>M1");
+                              //  Log.i("sss",">>>>>>>>>>>>>>>>>>>>>>M1");
                             }
                             flag = 2;
                         }else if(flag == 2){//身份证
                             if(idcard){
-                                Log.i("sss",">>>>>>>>>>>>>>>>>>>>>>身份证");
+                             //   Log.i("sss",">>>>>>>>>>>>>>>>>>>>>>身份证");
                                 com.decard.entitys.IDCard idCardData;
                                 if (!choose) {
                                     //标准协议
