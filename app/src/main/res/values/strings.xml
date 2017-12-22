@@ -7,4 +7,5 @@
     <string name="dialog_img">请将图片文件夹放到imageDoor文件下！</string>
     <string name="load_success">加载成功！</string>
     <string name="load_fail">加载失败！</string>
+
 </resources>

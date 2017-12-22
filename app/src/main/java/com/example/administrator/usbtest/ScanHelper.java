@@ -8,8 +8,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.TimeUnit;
 
-
+import rx.Observable;
+import rx.Subscription;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 
 /**
@@ -18,11 +22,11 @@ import java.io.OutputStream;
 
 public class ScanHelper {
     //每次获取数据之间的休息时间
-    private static final int WAIT_TIME = 50;
+    private static final int WAIT_TIME = 500;
     //开始获取数据的等待次数
     private static final int GET_FIRST_AVAILABLE_NUM = 3;
     //获取结尾数据判断是否是最后数据等待次数
-    private static final int GET_LAST_MSG_NUM = 3;
+    private static final int GET_LAST_MSG_NUM = 5;
 
 
     private SerialPort serialport;
@@ -30,6 +34,8 @@ public class ScanHelper {
     private OutputStream mOutputStream;
     private ReadThread mReadThread;
     private OnDataReceived onDataReceived;
+    private Subscription sub;
+
     /**
      * 初始化并打开串口
      * @param device
@@ -42,8 +48,9 @@ public class ScanHelper {
             this.serialport = new SerialPort(new File(device),baudrate);
             this.mInputStream = this.serialport.getInputStream();
             this.mOutputStream = this.serialport.getOutputStream();
-            mReadThread = new ReadThread();
-            mReadThread.start();
+//            mReadThread = new ReadThread();
+//            mReadThread.start();
+            findCode();
         } catch (IOException e) {
             e.printStackTrace();
             Log.e("ScanHelper", "can not open device");
@@ -54,6 +61,7 @@ public class ScanHelper {
      * 关闭串口
      */
     public void close() {
+        sub.unsubscribe();
         if (mReadThread != null){
            mReadThread.interrupt();
         }
@@ -64,6 +72,70 @@ public class ScanHelper {
         serialport = null;
         mInputStream=null;
         mOutputStream=null;
+    }
+
+    private void findCode(){
+        sub = Observable.interval(1000, 200, TimeUnit.MILLISECONDS)
+                .observeOn(Schedulers.io())
+                .subscribe(new Action1<Long>() {
+                    @Override
+                    public void call(Long aLong) {
+                        try {
+//                            if (mInputStream == null) return;
+//                            int poolNum = 1;
+//                            while(true) {
+//                                if(mInputStream.available() > 0){
+//                                    break;
+//                                }
+//                                poolNum ++;
+//                                if(poolNum > GET_FIRST_AVAILABLE_NUM){
+//                                    break;
+//                                }
+//                            }
+//                            int available = mInputStream.available();
+//                            if(available > 0) {
+//                                while (true) {
+//                                    if (mInputStream.available() > available) {
+//                                        available = mInputStream.available();
+//                                        poolNum = 1;
+//                                    } else if (mInputStream.available() == available) {
+//                                        poolNum++;
+//                                        if (poolNum > GET_LAST_MSG_NUM) {
+//                                            break;
+//                                        }
+//                                    }
+//                                }
+//                                byte[] buffer = new byte[available];
+//                                mInputStream.read(buffer);
+//                                onDataReceived.received(buffer, available);
+//                            }
+                            int poolNum = 1;
+                            if (mInputStream == null) return;
+                            int available = mInputStream.available();
+                                if(available > 0) {
+                                while (true) {
+                                    if (mInputStream.available() > available) {
+                                        available = mInputStream.available();
+                                        poolNum = 1;
+                                    } else if (mInputStream.available() == available) {
+                                        poolNum++;
+                                        if (poolNum > GET_LAST_MSG_NUM) {
+                                            break;
+                                        }
+                                    }
+                                }
+                                byte[] buffer = new byte[available];
+                                mInputStream.read(buffer);
+                                onDataReceived.received(buffer, available);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                });
+
+
     }
 
     class ReadThread extends Thread {

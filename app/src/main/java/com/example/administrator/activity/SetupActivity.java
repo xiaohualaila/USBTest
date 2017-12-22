@@ -11,6 +11,8 @@ import android.widget.CompoundButton;
 import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
+
+import com.example.administrator.activity.main.MainActivity;
 import com.example.administrator.greendaodemo.greendao.GreenDaoManager;
 import com.example.administrator.greendaodemo.greendao.gen.WhiteListDao;
 import com.example.administrator.usbtest.R;
@@ -41,8 +43,8 @@ public class SetupActivity  extends AppCompatActivity implements CompoundButton.
     TextView add_excel;
     private boolean isUitralight = true;
     private boolean isScan = true;
-    private boolean isIdcard = true;
-    private boolean isHaveThree = true;
+    private boolean isIdcard = false;
+    private boolean isHaveThree = false;
 
     private String path;
     @Override
@@ -55,6 +57,7 @@ public class SetupActivity  extends AppCompatActivity implements CompoundButton.
         scan_switch.setOnCheckedChangeListener(this);
         choose_switch.setOnCheckedChangeListener(this);
         FileUtil.getPath();
+        getExcel();
     }
 
 
@@ -68,14 +71,7 @@ public class SetupActivity  extends AppCompatActivity implements CompoundButton.
                 isUitralight = false;
                 break;
             case R.id.finish:
-
-                Intent intent = new Intent(this,LifecycleActivity.class);
-                intent.putExtra("uitralight",isUitralight);
-                intent.putExtra("scan",isScan);
-                intent.putExtra("idcard",isIdcard);
-                intent.putExtra("isHaveThree",isHaveThree);
-                startActivity(intent);
-                finish();
+               toActivity();
                 break;
             case R.id.add_excel:
                 getExcel();
@@ -151,11 +147,21 @@ public class SetupActivity  extends AppCompatActivity implements CompoundButton.
                 WhiteListDao whiteListDao = GreenDaoManager.getInstance().getSession().getWhiteListDao();
                 //存在数据
                 add_excel.setText("加载成功！共"+whiteListDao.loadAll().size() + "条记录");
+                toActivity();
             }else {
                 //加载失败
                 add_excel.setText(R.string.load_fail);
             }
             add_excel.setEnabled(true);
         }
+    }
+    private void toActivity() {
+        Intent intent = new Intent(this,MainActivity.class);
+        intent.putExtra("uitralight",isUitralight);
+        intent.putExtra("scan",isScan);
+        intent.putExtra("idcard",isIdcard);
+        intent.putExtra("isHaveThree",isHaveThree);
+        startActivity(intent);
+        finish();
     }
 }

@@ -32,7 +32,7 @@
         <activity android:name="com.example.administrator.activity.ShowActivty">
 
         </activity>
-        <activity android:name="com.example.administrator.activity.LifecycleActivity">
+        <activity android:name="com.example.administrator.activity.main.MainActivity">
 
         </activity>
         <service android:name="com.example.administrator.service.MyService"/>
