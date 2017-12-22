@@ -3,10 +3,12 @@ package com.example.administrator.activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -15,6 +17,7 @@ import com.cmm.rkadcreader.adcNative;
 import com.cmm.rkgpiocontrol.rkGpioControlNative;
 import com.decard.NDKMethod.BasicOper;
 import com.decard.entitys.IDCard;
+import com.example.administrator.bean.WhiteList;
 import com.example.administrator.retrofit.Api;
 import com.example.administrator.retrofit.ConnectUrl;
 import com.example.administrator.service.LifecycleService;
@@ -23,8 +26,13 @@ import com.example.administrator.usbtest.R;
 import com.example.administrator.usbtest.SPUtils;
 import com.example.administrator.usbtest.ScanHelper;
 import com.example.administrator.usbtest.Utils;
+import com.example.administrator.util.FileUtil;
+import com.example.administrator.util.GetDataUtil;
+import com.example.administrator.util.MyUtil;
+
 import org.json.JSONObject;
 import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -39,9 +47,7 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
-/**
- * Created by Administrator on 2017/12/12.
- */
+
 
 public class LifecycleActivity extends AppCompatActivity  {
     @BindView(R.id.name_tv)
@@ -73,11 +79,18 @@ public class LifecycleActivity extends AppCompatActivity  {
     private boolean uitralight = true;
     private boolean scan = true;
     private boolean idcard = true;
+    private boolean isHaveThree = true;
 
     //串口
     protected ScanHelper mScanHelper;
     private Subscription sub;
     private boolean isReading = false;
+
+    private String device_id;
+
+    private int type;//3 身份证,1 Ultralight,4 M1,2串口
+    private String ticketNum;
+    private File newFile;
 
     private ServiceConnection connection = new ServiceConnection() {
 
@@ -97,7 +110,6 @@ public class LifecycleActivity extends AppCompatActivity  {
                         isReading = true;
                         if (idCardData != null) {
                             BasicOper.dc_beep(5);
-                            openDoor();
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
@@ -107,11 +119,27 @@ public class LifecycleActivity extends AppCompatActivity  {
                                     age_tv.setText(idCardData.getBirthday().trim());
                                     address_tv.setText(idCardData.getAddress().trim());
                                     idcard_num_tv.setText(idCardData.getId().trim());
-                                    ivPhoto.setImageBitmap(ConvertUtils.bytes2Bitmap(ConvertUtils.hexString2Bytes(idCardData.getPhotoDataHexStr())));
+
+                                    Bitmap idcard = ConvertUtils.bytes2Bitmap(ConvertUtils.hexString2Bytes(idCardData.getPhotoDataHexStr()));
+                                    ivPhoto.setImageBitmap(idcard);
+                                    try {
+                                        if (newFile != null){
+                                            if(newFile.exists()){
+                                                newFile.delete();
+                                            }
+                                        }
+
+                                         newFile = FileUtil.saveFile(idcard, FileUtil.getPath() + File.separator  + "photo", FileUtil.getTime() + ".jpeg");
+                                    } catch (IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                    type = 3;
+                                    ticketNum = idCardData.getId().trim();
+                                    upload();
                                 }
                             });
                         }
-                        upload();
+
                     }
                 }
 
@@ -120,15 +148,17 @@ public class LifecycleActivity extends AppCompatActivity  {
                     if(!isReading){
                         isReading = true;
                          BasicOper.dc_beep(5);
-                        openDoor();
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 code_type.setText("Ultralight卡");
                                 code_tv.setText(result);
+                                type = 1;
+                                ticketNum = result.trim() + "00";
+                                upload();
                             }
                         });
-                        upload();
+
                     }
                 }
 
@@ -136,20 +166,23 @@ public class LifecycleActivity extends AppCompatActivity  {
                 public void onM1CardMsg(final String code) {
                     if(!isReading) {
                         BasicOper.dc_beep(5);
-                        openDoor();
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
                                 code_type.setText("M1卡");
                                 code_tv.setText(code);
+                                type = 4;
+                                ticketNum = code.trim();
+                                upload();
                             }
                         });
-                        upload();
+
                     }
                 }
             });
         }
     };
+
     public void doErWeiMaLifecycle(){
         sub = Observable.interval(2000, 500, TimeUnit.MILLISECONDS)
                 .observeOn(Schedulers.io())
@@ -173,10 +206,12 @@ public class LifecycleActivity extends AppCompatActivity  {
                         @Override
                         public void run() {
                             code_type.setText("二维码");
-                            code_tv.setText(str);
+                            code_tv.setText(str.trim());
+                            type = 2;
+                            ticketNum = str.trim();
+                            upload();
                         }
                     });
-
                 }
             });
         } catch (Exception e) {
@@ -185,15 +220,12 @@ public class LifecycleActivity extends AppCompatActivity  {
     }
 
 
-    private void  upload(){
-        isReading = false;
-    }
-
     public void openDoor(){
         if(!isOpenDoor){
             isOpenDoor = true;
             rkGpioControlNative.ControlGpio(1, 0);//开门
             handler.postDelayed(runnable,500);
+            Log.i("xxxx",">>>>openDoor>>>>>>>");
         }
     }
 
@@ -202,15 +234,18 @@ public class LifecycleActivity extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_show);
         ButterKnife.bind(this);
+        device_id = MyUtil.getDeviceID(this);//获取设备号
         Intent intent = getIntent();
         uitralight = intent.getBooleanExtra("uitralight",true);
         scan = intent.getBooleanExtra("scan",true);
         idcard = intent.getBooleanExtra("idcard",true);
-
+        isHaveThree = intent.getBooleanExtra("isHaveThree",true);
         Utils.init(getApplicationContext());
         settingSp = new SPUtils(getString(R.string.settingSp));
         USB = settingSp.getString(getString(R.string.usbKey), getString(R.string.androidUsb));
-        onOpenConnectPort();
+        if(isHaveThree){
+            onOpenConnectPort();
+        }
         rkGpioControlNative.init();
         //串口
         if(scan){
@@ -258,9 +293,11 @@ public class LifecycleActivity extends AppCompatActivity  {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        myBinder.stopThread();
-        unbindService(connection);
-        onDisConnectPort();
+        if(isHaveThree){
+            myBinder.stopThread();
+            unbindService(connection);
+            onDisConnectPort();
+        }
         adcNative.close(0);
         adcNative.close(2);
         rkGpioControlNative.close();
@@ -269,80 +306,101 @@ public class LifecycleActivity extends AppCompatActivity  {
         }
     }
 
-    /**
-     * 上传信息
-     */
-    private void uploadPhoto() {
-        File file = new File("");
-        if(!file.exists()){
 
-            return;
+    private void  upload(){
+        Log.i("xxxx","type >>" + type +"" +" ticketNum>>" + ticketNum);
+        boolean isNetAble = MyUtil.isNetworkAvailable(this);
+        if(isNetAble){
+            if(type == 2||type == 4||type == 1){
+                Api.getBaseApiWithOutFormat(ConnectUrl.URL)
+                        .uploadData(device_id,type,ticketNum)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Observer<JSONObject>() {
+                            @Override
+                            public void onCompleted() {
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                Log.i("xxxx",e.toString());
+                                isReading = false;
+                            }
+
+                            @Override
+                            public void onNext(JSONObject jsonObject) {
+                                jsonObjectResult(jsonObject);
+                            }
+                        });
+            }else {
+                if(!newFile.exists()){
+                    isReading = false;
+                    return;
+                }
+                MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
+                RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), newFile);
+                builder.addFormDataPart("idCardPhoto", newFile.getName(), requestBody);
+                Api.getBaseApiWithOutFormat(ConnectUrl.URL)
+                        .uploadData(device_id,type,ticketNum,builder.build().parts())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Observer<JSONObject>() {
+                            @Override
+                            public void onCompleted() {
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                Log.i("xxxx",e.toString());
+                                isReading = false;
+                            }
+
+                            @Override
+                            public void onNext(JSONObject jsonObject) {
+                                jsonObjectResult(jsonObject);
+                            }
+                        });
+                isReading = false;
+            }
+        }else {
+            findCount();
         }
-        MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
-        RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), file);
-        builder.addFormDataPart("photoImgFiles", file.getName(), requestBody);
-        Api.getBaseApiWithOutFormat(ConnectUrl.URL)
-                .uploadPhotoBase("1","",builder.build().parts())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<JSONObject>() {
-                    @Override
-                    public void onCompleted() {
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        //   Log.i("xxx",e.toString());
-                        isReading = false;
-                    }
-
-                    @Override
-                    public void onNext(JSONObject jsonObject) {
-                        Log.i("xxx",jsonObject.toString());
-//                            try {
-//                                if(jsonObject != null) {
-//                                    String Face_path = jsonObject.optString("Face_path");
-//                                    if(!TextUtils.isEmpty(Face_path)){
-//                                        Glide.with(CameraActivity.this).load(Face_path).error(R.drawable.img_bg).into(img_server);
-//                                    }
-//                                    String result = jsonObject.optString("Result");
-//                                    if (result.equals("1")||result.equals("6")) {
-//                                        if(result.equals("1")){
-//                                            text_card.setText(R.string.open_door_1);
-//                                        }else {
-//                                            text_card.setText(R.string.open_door_6);
-//                                        }
-//                                        isOpenDoor = true;
-//                                        rkGpioControlNative.ControlGpio(1, 0);//开门
-//                                        flag_tag.setImageResource(R.drawable.flag_green);
-//                                    } else if (result.equals("2")) {
-//                                        text_card.setText(R.string.open_door_2);
-//                                        flag_tag.setImageResource(R.drawable.flag_red);
-//                                    }else if (result.equals("3")){
-//                                        text_card.setText(R.string.open_door_3);
-//                                        flag_tag.setImageResource(R.drawable.flag_red);
-//                                    }else if (result.equals("4")){
-//                                        text_card.setText(R.string.open_door_4);
-//                                        flag_tag.setImageResource(R.drawable.flag_red);
-//                                    }else if(result.equals("5")){
-//                                        text_card.setText(R.string.open_door_5);
-//                                        flag_tag.setImageResource(R.drawable.flag_red);
-//                                    } else if(result.equals("99")){
-//                                        text_card.setText(R.string.open_door_99);
-//                                        flag_tag.setImageResource(R.drawable.flag_red);
-//                                    } else{
-//                                        text_card.setText(R.string.open_door_other);
-//                                        flag_tag.setImageResource(R.drawable.flag_red);
-//                                    }
-//                                }
-//                            } catch (Exception e) {
-//                                e.printStackTrace();
-//                            }finally {
-//                                uploadFinish();
-//                            }
-                        isReading = false;
-                    }
-                });
     }
+
+    private void jsonObjectResult(JSONObject jsonObject){
+        Log.i("xxxx",jsonObject.toString());
+        if(jsonObject !=null){
+            String result = jsonObject.optString("Result");
+            if(!TextUtils.isEmpty(result)){
+                if(result.equals("1")){
+                    openDoor();
+
+                    String imageStr = jsonObject.optString("Face_path");
+                }else if(result.equals("2")){
+                    Toast.makeText(LifecycleActivity.this,"正常票卡，已经入场，不可重复入场!",Toast.LENGTH_SHORT).show();
+                }else if(result.equals("3")){
+                    Toast.makeText(LifecycleActivity.this,"正常票卡，入场口错误，不可入场",Toast.LENGTH_SHORT).show();
+                }else if(result.equals("4")){
+                    Toast.makeText(LifecycleActivity.this,"正常票卡，入场频繁，稍后入场",Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(LifecycleActivity.this,"无效票！",Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        }
+        isReading = false;
+    }
+
+    private void findCount() {
+        String sStr = ticketNum.toUpperCase().trim();
+        WhiteList whiteList =  GetDataUtil.getDataBooean(sStr);
+        if(whiteList != null){
+            openDoor();
+        }else {
+            code_tv.setText("无效票！");
+        }
+    }
+
+
 }
 

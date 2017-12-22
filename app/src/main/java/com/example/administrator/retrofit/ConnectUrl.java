@@ -5,5 +5,5 @@ package com.example.administrator.retrofit;
  */
 public class ConnectUrl {
 
-    public static final String URL="http://116.62.57.42/ticket_checking/Api/api27/";
+    public static final String URL="http://116.62.57.42/ticket_checking/Api/api5/";
 }

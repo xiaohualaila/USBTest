@@ -7,13 +7,6 @@ public class rkGpioControlNative {
     }
 	
 	public static native int init();
-	/**
-	 *  
-	 * @param type IO�ڵ�����
-	 * @param which ��һ��IO
-	 * @param state �߻��ߵ�
-	 * @return
-	 */
 	public static native int ControlGpio(int which,int state); 
 	public static native int ReadGpio(int which);
 	public static native void close();

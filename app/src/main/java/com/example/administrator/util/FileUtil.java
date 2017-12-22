@@ -1,23 +1,26 @@
 package com.example.administrator.util;
 
+import android.graphics.Bitmap;
 import android.os.Environment;
 import android.text.TextUtils;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Calendar;
 
 /**
- * Created by xyuxiao on 2016/9/23.
+ * Created by 胡少华 on 2017/11/23.
  */
 public class FileUtil {
     /**
      * 获取图片保存路径
      */
     public static String getPath(){
-        String path = FileUtil.getSDPath() + File.separator + "door";
+        String path = FileUtil.getSDPath() + File.separator + "imageDoor";
         File pathFile = new File(path);
         if(!pathFile.exists() || !pathFile.isDirectory()){
             pathFile.mkdir();
@@ -89,7 +92,25 @@ public class FileUtil {
         }
     }
 
-
+    /**
+     * 将Bitmap转换成文件
+     * 保存文件
+     * @param bm
+     * @param fileName
+     * @throws IOException
+     */
+    public static File saveFile(Bitmap bm, String path, String fileName) throws IOException {
+        File dirFile = new File(path);
+        if(!dirFile.exists()){
+            dirFile.mkdir();
+        }
+        File myCaptureFile = new File(path , fileName);
+        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(myCaptureFile));
+        bm.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+        bos.flush();
+        bos.close();
+        return myCaptureFile;
+    }
     public static long getTime() {
         return Calendar.getInstance().getTimeInMillis();
     }

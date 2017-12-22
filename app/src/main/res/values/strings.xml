@@ -3,4 +3,8 @@
     <string name="usbKey">usbKey</string>
     <string name="androidUsb">AUSB</string>
     <string name="settingSp">spSetting</string>
+    <string name="dialog_msg">文件不存在,请将文件放入设备存储imageDoor文件下！</string>
+    <string name="dialog_img">请将图片文件夹放到imageDoor文件下！</string>
+    <string name="load_success">加载成功！</string>
+    <string name="load_fail">加载失败！</string>
 </resources>
