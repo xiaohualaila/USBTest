@@ -241,18 +241,11 @@ public class MainActivity extends BaseAppCompatActivity  implements MainContract
                     runOnUiThread(new Runnable() {
                         public void run() {
                             if(!isReading){
+                                ticketNum = new String(ComData.bRec);
+                                type = 2;
+                                text.setText("票号" + ticketNum);
+                                upload();
                                 Log.i("ssss","+++++++++++++++++++");
-                                if (kk) {
-                                    str = new String(ComData.bRec);
-                                    kk = false;
-                                } else {
-                                    kk = true;
-                                    ticketNum = str + new String(ComData.bRec);
-                                    Log.i("sss",ticketNum);
-                                    type = 2;
-                                    text.setText("票号" + ticketNum);
-                                    upload();
-                                }
                             }
 
                         }

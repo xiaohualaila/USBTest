@@ -28,23 +28,19 @@ import com.cmm.rkadcreader.adcNative;
 import com.cmm.rkgpiocontrol.rkGpioControlNative;
 import com.decard.NDKMethod.BasicOper;
 import com.decard.entitys.IDCard;
-
-import com.example.administrator.activity.main.MainActivity;
-import com.example.administrator.bean.WhiteList;
 import com.example.administrator.retrofit.Api;
 import com.example.administrator.retrofit.ConnectUrl;
 import com.example.administrator.service.CommonService;
 import com.example.administrator.usbtest.ComBean;
-
 import com.example.administrator.usbtest.R;
 import com.example.administrator.usbtest.SPUtils;
 import com.example.administrator.usbtest.SerialHelper;
 import com.example.administrator.usbtest.Utils;
 import com.example.administrator.util.FileUtil;
-import com.example.administrator.util.GetDataUtil;
 import com.example.administrator.util.MyUtil;
 
 import org.json.JSONObject;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -66,12 +62,11 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 
-
 /**
  * Created by dhht on 16/9/29.
  */
 
-public class CameraActivity extends Activity implements SurfaceHolder.Callback {
+public class CameraActivity2 extends Activity implements SurfaceHolder.Callback {
 
     @BindView(R.id.camera_sf)
     SurfaceView camera_sf;
@@ -81,8 +76,6 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     ImageView img1;
     @BindView(R.id.img_server)
     ImageView img_server;
-    @BindView(R.id.card_no)
-    TextView card_no;//票号
 
     @BindView(R.id.flag_tag)
     ImageView flag_tag;
@@ -93,8 +86,6 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     private boolean safephoto  =true;
     private int width = 640;
     private int height = 480;
-
-    int index = 0;
 
     private SPUtils settingSp;
     private String USB="";
@@ -107,7 +98,6 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
     private boolean scan = true;
     private boolean idcard = false;
     private boolean isHaveThree = true;
-    private boolean flag  = true;
     //串口
     SerialControl ComA;
     DispQueueThread DispQueue;
@@ -139,7 +129,6 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                         if(!isReading){
                             type = 3;
                             ticketNum = idCardData.getId().trim();
-                            showTicketNo();
                             Log.i("xxx"," 身份证 ticketNum 》》》   " + ticketNum);
                             isReading = true;
                             if(!TextUtils.isEmpty(ticketNum) && !TextUtils.isEmpty(code)){
@@ -158,7 +147,6 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                             isReading = true;
                             type = 1;
                             ticketNum = result.trim() + "00";
-                            showTicketNo();
                             Log.i("xxx","芯片的ticketNum》》  " + ticketNum);
 
                                 if(!TextUtils.isEmpty(ticketNum) && !TextUtils.isEmpty(code)){
@@ -176,7 +164,6 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                         isReading = true;
                         type = 4;
                         ticketNum = code.trim();
-                        showTicketNo();
                         Log.i("xxx","M1 ticketNum  》》》" + code);
                         if(!TextUtils.isEmpty(ticketNum) && !TextUtils.isEmpty(code)){
                             uploadPhoto();
@@ -201,34 +188,11 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         isReading = false;
     }
 
-
-    private void showTicketNo(){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                card_no.setText(ticketNum);
-            }
-        });
-    }
-
-    /**
-     * 测试用按钮
-     * @param view
-     */
-    @OnClick({R.id.take_photo})
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.take_photo:
-                takePhoto();
-                break;
-        }
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        setContentView(R.layout.activity_camera);
+        setContentView(R.layout.activity_camera2);
         ButterKnife.bind(this);
         holder = camera_sf.getHolder();
         holder.addCallback(this);
@@ -328,7 +292,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                 bm1.recycle();
                 startPreview();
 
-                Glide.with(CameraActivity.this).load(filePath).error(R.drawable.img_bg).into(img1);
+                Glide.with(CameraActivity2.this).load(filePath).error(R.drawable.left_img).into(img1);
                 if(!TextUtils.isEmpty(ticketNum) && !TextUtils.isEmpty(code)){
                     uploadPhoto();
                 }else {
@@ -373,8 +337,8 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
                     @Override
                     public void onError(Throwable e) {
                      //   Log.i("xxx",e.toString());
-                        text_card.setText("数据请求失败！");
-                        flag_tag.setImageResource(R.drawable.flag_red);
+                        text_card.setText("请求失败！");
+                        flag_tag.setImageResource(R.drawable.not_pass);
                         uploadFinish();
                     }
 
@@ -386,13 +350,17 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
 
                                     String result = jsonObject.optString("Result");
                                     if (result.equals("1")) {
-                                        text_card.setText(R.string.open_door_ok);
+                                        String Face_path = jsonObject.optString("Face_path");
+                                        if(!TextUtils.isEmpty(Face_path)){
+                                            Glide.with(CameraActivity2.this).load(filePath).error(R.drawable.left_img).into(img_server);
+                                        }
+                                        text_card.setText("");
                                         isOpenDoor = true;
                                         rkGpioControlNative.ControlGpio(1, 0);//开门
-                                        flag_tag.setImageResource(R.drawable.flag_green);
+                                        flag_tag.setImageResource(R.drawable.pass);
                                     }  else{
-                                        text_card.setText(R.string.open_door_faill);
-                                        flag_tag.setImageResource(R.drawable.flag_red);
+                                        text_card.setText("");
+                                        flag_tag.setImageResource(R.drawable.not_pass);
                                     }
                                 }
                             } catch (Exception e) {
@@ -408,12 +376,10 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
      * 0.5秒关门
      */
     private void uploadFinish() {
-        card_no.setText(ticketNum);
         safephoto = true;
         isReading =false;
         ticketNum = "";
         code = "";
-        card_no.setText("");
         File file = new File(filePath);
         if(file.exists()){
             file.delete();
@@ -422,6 +388,13 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
             isOpenDoor = false;
             handler.postDelayed(runnable,500);
         }
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                text_card.setText("");
+                flag_tag.setImageResource(R.drawable.welcome);
+            }
+        },1000);
     }
 
     Runnable runnable = new Runnable() {

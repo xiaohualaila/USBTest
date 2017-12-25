@@ -52,6 +52,7 @@
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@+id/choose_3"
                 android:layout_centerVertical="true"
+                android:checked="true"
                 android:layout_marginLeft="20dp"/>
 
         </RelativeLayout>

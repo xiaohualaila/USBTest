@@ -90,7 +90,21 @@ public abstract class SerialHelper {
 					byte[] buffer=new byte[512];
 					int size = mInputStream.read(buffer);
 					if (size > 0){
-						ComBean ComRecData = new ComBean(sPort,buffer,size);
+						Thread.sleep(50);
+
+						byte[] buffer_1 = new byte[512];
+						int size_1 =  mInputStream.read(buffer_1);
+						int all_size = size + size_1;
+						byte[] buffer_all = new byte[(all_size)];
+						for(int i = 0; i < all_size; i ++) {
+							if(i < size) {
+								buffer_all[i] = buffer[i];
+							} else {
+								buffer_all[i] = buffer_1[i-size];
+							}
+						}
+
+						ComBean ComRecData = new ComBean(sPort,buffer_all,all_size);
 						onDataReceived(ComRecData);
 					}
 					try

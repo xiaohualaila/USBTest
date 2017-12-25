@@ -23,11 +23,12 @@ public interface BaseApi {
             @Part List<MultipartBody.Part> file
     );
 
-    @POST("api2.php")
+    @POST("api.php")
     @Multipart
     Observable<JSONObject> uploadPhotoBase(
             @Query("deviceid") String deviceid,
             @Query("ticketid") String ticketid,
+            @Query("qrcode") String code,
             @Query("type") int type,
             @Part List<MultipartBody.Part> file
     );
