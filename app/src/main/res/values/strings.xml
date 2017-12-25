@@ -8,4 +8,14 @@
     <string name="load_success">加载成功！</string>
     <string name="load_fail">加载失败！</string>
 
+    <string name="open_door_1">重复进入，验证通过!</string>
+    <string name="open_door_2">剩余入场次数不足!</string>
+    <string name="open_door_3">入场口错误，不能入场!</string>
+    <string name="open_door_4">入场频繁，请稍后入场!</string>
+    <string name="open_door_5">人脸识别不符，不能通过!</string>
+    <string name="open_door_6">首次进入，验证通过!</string>
+    <string name="open_door_other">无效票卡，不允许入场!</string>
+    <string name="open_door_99">网络异常，请重试！</string>
+    <string name="open_door_ok">网络异常，请重试！</string>
+    <string name="open_door_faill">网络异常，请重试！</string>
 </resources>

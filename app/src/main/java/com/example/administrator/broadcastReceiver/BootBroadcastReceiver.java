@@ -4,7 +4,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import com.example.administrator.activity.CameraActivity;
 import com.example.administrator.activity.SetupActivity;
+import com.example.administrator.activity.main.MainActivity;
 
 
 /**

@@ -24,7 +24,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class CommonService extends Service implements UltralightCardListener,M1CardListener {
     private int flag = 1;
-    private final int TIME = 500;
+    private final int TIME = 1000;
     //身份证
     private Thread thread;
     private boolean isAuto = true;

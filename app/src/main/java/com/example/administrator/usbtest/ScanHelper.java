@@ -22,7 +22,7 @@ import rx.schedulers.Schedulers;
 
 public class ScanHelper {
     //每次获取数据之间的休息时间
-    private static final int WAIT_TIME = 500;
+    private static final int WAIT_TIME = 50;
     //开始获取数据的等待次数
     private static final int GET_FIRST_AVAILABLE_NUM = 3;
     //获取结尾数据判断是否是最后数据等待次数
@@ -48,9 +48,9 @@ public class ScanHelper {
             this.serialport = new SerialPort(new File(device),baudrate);
             this.mInputStream = this.serialport.getInputStream();
             this.mOutputStream = this.serialport.getOutputStream();
-//            mReadThread = new ReadThread();
-//            mReadThread.start();
-            findCode();
+            mReadThread = new ReadThread();
+            mReadThread.start();
+          //  findCode();
         } catch (IOException e) {
             e.printStackTrace();
             Log.e("ScanHelper", "can not open device");
@@ -61,7 +61,7 @@ public class ScanHelper {
      * 关闭串口
      */
     public void close() {
-        sub.unsubscribe();
+     //   sub.unsubscribe();
         if (mReadThread != null){
            mReadThread.interrupt();
         }
@@ -127,6 +127,7 @@ public class ScanHelper {
                                 byte[] buffer = new byte[available];
                                 mInputStream.read(buffer);
                                 onDataReceived.received(buffer, available);
+                                    mInputStream.reset();
                             }
                         } catch (IOException e) {
                             e.printStackTrace();

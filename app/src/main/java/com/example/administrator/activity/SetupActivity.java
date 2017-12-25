@@ -147,7 +147,7 @@ public class SetupActivity  extends AppCompatActivity implements CompoundButton.
                 WhiteListDao whiteListDao = GreenDaoManager.getInstance().getSession().getWhiteListDao();
                 //存在数据
                 add_excel.setText("加载成功！共"+whiteListDao.loadAll().size() + "条记录");
-                toActivity();
+              //  toActivity();
             }else {
                 //加载失败
                 add_excel.setText(R.string.load_fail);
@@ -156,7 +156,8 @@ public class SetupActivity  extends AppCompatActivity implements CompoundButton.
         }
     }
     private void toActivity() {
-        Intent intent = new Intent(this,MainActivity.class);
+        //Intent intent = new Intent(this,MainActivity.class);
+        Intent intent = new Intent(this,CameraActivity.class);
         intent.putExtra("uitralight",isUitralight);
         intent.putExtra("scan",isScan);
         intent.putExtra("idcard",isIdcard);
