@@ -17,7 +17,6 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
-import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -53,7 +52,6 @@ import java.util.Queue;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -125,7 +123,7 @@ public class CameraActivity2 extends Activity implements SurfaceHolder.Callback 
                 @Override
                 public void onIDCardMsg(IDCard idCardData) {//身份证
                     if (idCardData != null) {
-                        //  BasicOper.dc_beep(5);
+                          BasicOper.dc_beep(5);
                         if(!isReading){
                             type = 3;
                             ticketNum = idCardData.getId().trim();
@@ -142,7 +140,7 @@ public class CameraActivity2 extends Activity implements SurfaceHolder.Callback 
 
                 @Override
                 public void onUltralightCardMsg(final String result) {
-                      //  BasicOper.dc_beep(5);
+                     BasicOper.dc_beep(5);
                     if(!isReading){
                             isReading = true;
                             type = 1;
@@ -160,6 +158,7 @@ public class CameraActivity2 extends Activity implements SurfaceHolder.Callback 
 
                 @Override
                 public void onM1CardMsg(final String code) {
+                    BasicOper.dc_beep(5);
                     if(!isReading){
                         isReading = true;
                         type = 4;
@@ -352,7 +351,7 @@ public class CameraActivity2 extends Activity implements SurfaceHolder.Callback 
                                     if (result.equals("1")) {
                                         String Face_path = jsonObject.optString("Face_path");
                                         if(!TextUtils.isEmpty(Face_path)){
-                                            Glide.with(CameraActivity2.this).load(filePath).error(R.drawable.left_img).into(img_server);
+                                            Glide.with(CameraActivity2.this).load(Face_path).error(R.drawable.left_img).into(img_server);
                                         }
                                         text_card.setText("");
                                         isOpenDoor = true;

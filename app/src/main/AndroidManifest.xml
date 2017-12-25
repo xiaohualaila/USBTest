@@ -27,17 +27,17 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name="com.example.administrator.activity.SetupActivity">
-
-        </activity>
-        <activity android:name="com.example.administrator.activity.ShowActivty">
-
-        </activity>
-        <activity android:name="com.example.administrator.activity.CameraActivity2">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name="com.example.administrator.activity.ShowActivty">
+
+        </activity>
+        <activity android:name="com.example.administrator.activity.CameraActivity2">
+
         </activity>
         <activity android:name="com.example.administrator.activity.main.MainActivity">
 
