@@ -362,7 +362,7 @@ public class CameraActivity extends Activity implements SurfaceHolder.Callback {
         RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), file);
         builder.addFormDataPart("photoImgFiles", file.getName(), requestBody);
         Api.getBaseApiWithOutFormat(ConnectUrl.URL)
-                .uploadPhotoBase(device_id,ticketNum,code,type,builder.build().parts())
+                .uploadPhotoBase(device_id,ticketNum,type,builder.build().parts())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<JSONObject>() {

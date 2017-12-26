@@ -340,7 +340,7 @@ public class CommonActivty extends AppCompatActivity  {
         RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), file);
         builder.addFormDataPart("photoImgFiles", file.getName(), requestBody);
         Api.getBaseApiWithOutFormat(ConnectUrl.URL)
-                .uploadPhotoBase("1","","",1,builder.build().parts())
+                .uploadPhotoBase("1","",1,builder.build().parts())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<JSONObject>() {

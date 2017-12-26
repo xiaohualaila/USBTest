@@ -44,7 +44,7 @@ public class SetupActivity  extends AppCompatActivity implements CompoundButton.
     private boolean isUitralight = true;
     private boolean isScan = true;
     private boolean isIdcard = false;
-    private boolean isHaveThree = true;
+    private boolean isHaveThree = false;
 
     private String path;
     @Override

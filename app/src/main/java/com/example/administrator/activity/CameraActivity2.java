@@ -95,7 +95,7 @@ public class CameraActivity2 extends Activity implements SurfaceHolder.Callback 
     private boolean uitralight = true;
     private boolean scan = true;
     private boolean idcard = false;
-    private boolean isHaveThree = true;
+    private boolean isHaveThree = false;
     //串口
     SerialControl ComA;
     DispQueueThread DispQueue;
@@ -106,7 +106,6 @@ public class CameraActivity2 extends Activity implements SurfaceHolder.Callback 
      */
     private int type;
     private String ticketNum;
-    private String code;
 
     private ServiceConnection connection = new ServiceConnection() {
 
@@ -129,11 +128,8 @@ public class CameraActivity2 extends Activity implements SurfaceHolder.Callback 
                             ticketNum = idCardData.getId().trim();
                             Log.i("xxx"," 身份证 ticketNum 》》》   " + ticketNum);
                             isReading = true;
-                            if(!TextUtils.isEmpty(ticketNum) && !TextUtils.isEmpty(code)){
-                                uploadPhoto();
-                            }else {
-                                tipText();
-                            }
+                             takePhoto();
+
                         }
                     }
                 }
@@ -146,13 +142,7 @@ public class CameraActivity2 extends Activity implements SurfaceHolder.Callback 
                             type = 1;
                             ticketNum = result.trim() + "00";
                             Log.i("xxx","芯片的ticketNum》》  " + ticketNum);
-
-                                if(!TextUtils.isEmpty(ticketNum) && !TextUtils.isEmpty(code)){
-                                    uploadPhoto();
-                                }else {
-                                    tipText();
-                                }
-
+                            takePhoto();
                     }
                 }
 
@@ -163,29 +153,16 @@ public class CameraActivity2 extends Activity implements SurfaceHolder.Callback 
                         isReading = true;
                         type = 4;
                         ticketNum = code.trim();
-                        Log.i("xxx","M1 ticketNum  》》》" + code);
-                        if(!TextUtils.isEmpty(ticketNum) && !TextUtils.isEmpty(code)){
-                            uploadPhoto();
-                        }else {
-                            tipText();
-                        }
+                        Log.i("xxx","M1 ticketNum  》》》" + ticketNum);
+                        takePhoto();
+
                     }
                 }
             });
         }
     };
 
-    private void tipText(){
-        if(TextUtils.isEmpty(code)){
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    text_card.setText("请扫描二维!");
-                }
-            });
-        }
-        isReading = false;
-    }
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -202,7 +179,7 @@ public class CameraActivity2 extends Activity implements SurfaceHolder.Callback 
         uitralight = intent.getBooleanExtra("uitralight",true);
         scan = intent.getBooleanExtra("scan",true);
         idcard = intent.getBooleanExtra("idcard",false);
-        isHaveThree = intent.getBooleanExtra("isHaveThree",true);
+        isHaveThree = intent.getBooleanExtra("isHaveThree",false);
         Utils.init(getApplicationContext());
         settingSp = new SPUtils(getString(R.string.settingSp));
         USB = settingSp.getString(getString(R.string.usbKey), getString(R.string.androidUsb));
@@ -239,9 +216,9 @@ public class CameraActivity2 extends Activity implements SurfaceHolder.Callback 
     public void onDisConnectPort() {
         int close_status = BasicOper.dc_exit();
         if(close_status>=0){
-            Log.i("sss","设备关闭");
+         //   Log.i("sss","设备关闭");
         }else {
-            Log.i("sss","Port has closed");
+          //  Log.i("sss","Port has closed");
         }
     }
 
@@ -292,21 +269,7 @@ public class CameraActivity2 extends Activity implements SurfaceHolder.Callback 
                 startPreview();
 
                 Glide.with(CameraActivity2.this).load(filePath).error(R.drawable.left_img).into(img1);
-                if(!TextUtils.isEmpty(ticketNum) && !TextUtils.isEmpty(code)){
-                    uploadPhoto();
-                }else {
-                    if(TextUtils.isEmpty(ticketNum)){
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                text_card.setText("请刷卡！");
-                            }
-                        });
-                    }
-                    isReading = false;
-                }
-
-
+                uploadPhoto();
             }
         }
     };
@@ -325,7 +288,7 @@ public class CameraActivity2 extends Activity implements SurfaceHolder.Callback 
         RequestBody requestBody = RequestBody.create(MediaType.parse("multipart/form-data"), file);
         builder.addFormDataPart("photoImgFiles", file.getName(), requestBody);
         Api.getBaseApiWithOutFormat(ConnectUrl.URL)
-                .uploadPhotoBase(device_id,ticketNum,code,type,builder.build().parts())
+                .uploadPhotoBase(device_id,ticketNum,type,builder.build().parts())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<JSONObject>() {
@@ -353,12 +316,10 @@ public class CameraActivity2 extends Activity implements SurfaceHolder.Callback 
                                         if(!TextUtils.isEmpty(Face_path)){
                                             Glide.with(CameraActivity2.this).load(Face_path).error(R.drawable.left_img).into(img_server);
                                         }
-                                        text_card.setText("");
                                         isOpenDoor = true;
                                         rkGpioControlNative.ControlGpio(1, 0);//开门
                                         flag_tag.setImageResource(R.drawable.pass);
                                     }  else{
-                                        text_card.setText("");
                                         flag_tag.setImageResource(R.drawable.not_pass);
                                     }
                                 }
@@ -378,7 +339,6 @@ public class CameraActivity2 extends Activity implements SurfaceHolder.Callback 
         safephoto = true;
         isReading =false;
         ticketNum = "";
-        code = "";
         File file = new File(filePath);
         if(file.exists()){
             file.delete();
@@ -392,6 +352,7 @@ public class CameraActivity2 extends Activity implements SurfaceHolder.Callback 
             public void run() {
                 text_card.setText("");
                 flag_tag.setImageResource(R.drawable.welcome);
+                img1.setImageResource(R.drawable.left_img);
             }
         },1000);
     }
@@ -427,7 +388,9 @@ public class CameraActivity2 extends Activity implements SurfaceHolder.Callback 
         adcNative.close(0);
         adcNative.close(2);
         rkGpioControlNative.close();
-        onDisConnectPort();
+        if(isHaveThree){
+            onDisConnectPort();
+        }
         closeErWeiMa();
     }
 
@@ -436,6 +399,7 @@ public class CameraActivity2 extends Activity implements SurfaceHolder.Callback 
         try {
             camera.setPreviewDisplay(holder);
         } catch (IOException exception) {
+
         }
     }
 
@@ -603,11 +567,11 @@ public class CameraActivity2 extends Activity implements SurfaceHolder.Callback 
                     runOnUiThread(new Runnable() {
                         public void run() {
                             if(!isReading){
-                                code = new String(ComData.bRec).trim();
-                                type = 2;
                                 isReading =true;
+                                ticketNum = new String(ComData.bRec).trim();
+                                type = 2;
                                 takePhoto();
-                                Log.i("xxx", "二维码》》》》  " + code);
+                                Log.i("xxx", "二维码》》》》  " + ticketNum);
                             }
                         }
                     });
