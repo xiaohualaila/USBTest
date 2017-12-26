@@ -21,7 +21,6 @@ import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.bumptech.glide.Glide;
 import com.cmm.rkadcreader.adcNative;
 import com.cmm.rkgpiocontrol.rkGpioControlNative;
@@ -37,9 +36,7 @@ import com.example.administrator.usbtest.SerialHelper;
 import com.example.administrator.usbtest.Utils;
 import com.example.administrator.util.FileUtil;
 import com.example.administrator.util.MyUtil;
-
 import org.json.JSONObject;
-
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -49,7 +46,6 @@ import java.security.InvalidParameterException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import okhttp3.MediaType;
