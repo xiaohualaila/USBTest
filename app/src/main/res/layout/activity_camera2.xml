@@ -7,11 +7,11 @@
         android:id="@+id/top_ll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="250dp">
+        android:layout_marginTop="180dp">
         <ImageView
             android:id="@+id/img1"
             android:layout_width="250dp"
-            android:layout_height="280dp"
+            android:layout_height="250dp"
             android:layout_marginLeft="20dp"
             android:layout_alignParentLeft="true"
             android:scaleType="fitXY"
@@ -27,7 +27,7 @@
         <ImageView
             android:id="@+id/img_server"
             android:layout_width="250dp"
-            android:layout_height="280dp"
+            android:layout_height="250dp"
             android:layout_marginRight="20dp"
             android:scaleType="fitXY"
             android:layout_alignParentRight="true"
@@ -40,8 +40,8 @@
         android:layout_above="@+id/flag_tag"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         android:layout_marginTop="10dp"
         />
     <ImageView
@@ -51,6 +51,8 @@
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         android:src="@drawable/welcome"
+        android:layout_marginBottom="30dp"
+        android:layout_marginTop="20dp"
         />
 </RelativeLayout>
 

@@ -238,7 +238,7 @@ public class CameraActivity2 extends Activity implements SurfaceHolder.Callback 
             filePath = FileUtil.getPath() + File.separator + FileUtil.getTime() + ".jpeg";
             Matrix matrix = new Matrix();
             matrix.reset();
-            matrix.postRotate(180);
+            matrix.postRotate(0);
             BitmapFactory.Options factory = new BitmapFactory.Options();
             factory = setOptions(factory);
             Bitmap bm = BitmapFactory.decodeByteArray(data, 0, data.length,factory);
@@ -278,7 +278,7 @@ public class CameraActivity2 extends Activity implements SurfaceHolder.Callback 
      * 上传信息
      */
     private void uploadPhoto() {
-        Log.i("xxx",">>>>>>>>>>>>>>>>>>>>>>>>>请求服务器");
+        //Log.i("xxx",">>>>>>>>>>>>>>>>>>>>>>>>>请求服务器");
         File  file = new File(filePath);
         if(!file.exists()){
             uploadFinish();
@@ -298,7 +298,7 @@ public class CameraActivity2 extends Activity implements SurfaceHolder.Callback 
 
                     @Override
                     public void onError(Throwable e) {
-                     //   Log.i("xxx",e.toString());
+                        Log.i("xxx",e.toString());
                         text_card.setText("请求失败！");
                         flag_tag.setImageResource(R.drawable.not_pass);
                         uploadFinish();
@@ -382,7 +382,9 @@ public class CameraActivity2 extends Activity implements SurfaceHolder.Callback 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        myBinder.stopThread();
+        if(myBinder!=null){
+            myBinder.stopThread();
+        }
         closeCamera();
         unbindService(connection);
         adcNative.close(0);
@@ -455,7 +457,7 @@ public class CameraActivity2 extends Activity implements SurfaceHolder.Callback 
         Camera.CameraInfo info = new Camera.CameraInfo();
         Camera.getCameraInfo(cameraId, info);
         int rotation = this.getWindowManager().getDefaultDisplay().getRotation();
-         rotation = 2;
+         rotation = 0;
         int degrees = 0;
         switch (rotation) {
             case Surface.ROTATION_0:

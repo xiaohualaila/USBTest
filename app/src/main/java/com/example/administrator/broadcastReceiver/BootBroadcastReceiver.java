@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.example.administrator.activity.CameraActivity;
+import com.example.administrator.activity.CameraActivity2;
 import com.example.administrator.activity.SetupActivity;
 import com.example.administrator.activity.main.MainActivity;
 
@@ -18,7 +19,7 @@ public class BootBroadcastReceiver extends BroadcastReceiver{
     @Override
     public void onReceive(Context context, Intent intent) {
           if(intent.getAction().equals(ACTION)){
-			  Intent in  = new Intent(context,SetupActivity.class);
+			  Intent in  = new Intent(context,CameraActivity2.class);
 			  in.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 			  context.startActivity(in);
 		  }
